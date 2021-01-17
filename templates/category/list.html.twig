@@ -1,0 +1,21 @@
+{% extends 'base.admin.html.twig' %}
+
+{% block body %}
+	{{"Liste des catégories :"}}
+	<ul>
+		{% for category in categories %}
+			<li>
+				<a href={{"/admin/category/" ~ category.id}}>{{category.name}}</a>
+				<a href={{"/admin/category/" ~ category.id ~ "/edit"}}>
+					<button>Edit</button><a/>
+					<a href={{"/admin/category/" ~ category.id ~ "/remove"}}>
+						<button>Delete</button><a/>
+					</li>
+				{% else %}
+					Pas de catégorie trouvé.
+				{% endfor %}
+			</li>
+		</ul>
+		<a href="/admin/category/new/create">
+			<button>Add</button><a/>
+		{% endblock %}

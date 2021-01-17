@@ -1,5 +1,54 @@
 {% extends 'base.admin.html.twig' %}
 
 {% block body %}
-	{{ post.title }}
+
+	<ul>
+
+		<li>
+			Identifiant :
+			{{ post.id }}
+		</li>
+
+		<li>
+			Titre :
+			{{ post.title }}
+		</li>
+
+		<li>
+			Description :
+			{{ post.description }}
+		</li>
+
+		<li>
+			Contenu :
+			{{ post.content }}
+		</li>
+
+		<li>
+			Slug :
+			{{ post.slug }}
+		</li>
+
+		<li>
+			Crée le :
+			{{post.createdAt|date("m/d/Y")}}
+		</li>
+
+		<li>
+			Publié le :
+			{{post.publishedAt|date("m/d/Y")}}
+		</li>
+		{#
+					<li>
+						{{ post.comments }}
+					</li>
+								
+					<li>
+						{{ post.categories }}
+					</li>
+				#}
+
+	</ul>
+
+
 {% endblock %}

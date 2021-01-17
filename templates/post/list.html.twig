@@ -1,0 +1,23 @@
+{% extends 'base.admin.html.twig' %}
+
+{% block body %}
+	{{"Liste des posts :"}}
+	<ul>
+		{% for post in posts %}
+			<li>
+				<a href={{"/admin/post/" ~ post.id}}>{{post.title}}</a>
+				<a href={{"/admin/post/" ~ post.id ~ "/edit"}}>
+					<button>Edit</button>
+					<a/>
+					<a href={{"/admin/post/" ~ post.id ~ "/remove"}}>
+						<button>Delete</button>
+						<a/>
+					</li>
+				{% else %}
+					Pas de post trouvé.
+				{% endfor %}
+			</li>
+		</ul>
+		<a href="/admin/post/new/create">
+			<button>Add</button><a/>
+		{% endblock %}

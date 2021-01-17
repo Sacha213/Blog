@@ -6,12 +6,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Category;
+use App\Entity\Post;
+use Symfony\Component\HttpFoundation\Request;
+use App\Form\CategoryType;
 
 class CategoryController extends AbstractController
 {
 
     /**
-     * @Route("/admin/category/{idCategory}")
+     * @Route("/admin/category/{idCategory}", name="category.show")
      */
     public function show($idCategory)
     {
@@ -22,7 +25,7 @@ class CategoryController extends AbstractController
 
         if(!$category) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé avec l'id ".$idCategory
+                "Pas de Category trouvé avec l'id ".$idCategory
             );
         }
 
@@ -32,7 +35,7 @@ class CategoryController extends AbstractController
     }
 
     /**
-     * @Route("/admin/category")
+     * @Route("/admin/category", name="category.list")
      */
     public function list()
     {
@@ -43,7 +46,7 @@ class CategoryController extends AbstractController
 
         if(!$categories) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé"
+                "Pas de Category trouvé"
             );
         }
 
@@ -53,33 +56,47 @@ class CategoryController extends AbstractController
     }
 
     /**
-     * @Route("/admin/category/create")
+     * @Route("/admin/category/new/create", name="category.create")
      */
-    public function create()
+    public function create(Request $request)
     {
-        // On crée un nouveau objet Category
-        $category = new Category();
-        $category->setName("Manga");
-        
-        // On récupère le manager des entities
-        $entityManager = $this->getDoctrine()->getManager();
-        
-        // On dit à Doctrine que l'on veut sauvegarder la Category
-        // (Pas encore de requête faite en base)
-        $entityManager->persist($category);
-        
-        // La/les requêtes sont exécutées (i.e. la requête INSERT) 
-        $entityManager->flush();
 
-        return $this->render('category/create.html.twig',[
-            'category' => $category,
-        ]);
+        // On crée un nouveau objet Post
+        $category = new Category();
+
+        $form = $this->createForm(CategoryType::class, $category);
+
+        //Récupère les données transmises par la requête pour les transmettre au formulaire
+        $form->handleRequest($request);
+        // Vérifie si le formulaire a été soumis et s'il est valide
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Récupère l'objet `Post` qui a été passé au formulaire
+            // L'objet `Post` a été mis à jour avec les données soumises et validées 
+            $category = $form->getData();
+
+            // On récupère le manager des entities
+            $entityManager = $this->getDoctrine()->getManager();
+
+            // On dit à Doctrine que l'on veut sauvegarder le Post
+            // (Pas encore de requête faite en base)
+            $entityManager->persist($category);
+
+            // La/les requêtes sont exécutées (i.e. la requête INSERT) 
+            $entityManager->flush();
+        }
+
+        return $this->render(
+            'category/create.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
-     * @Route("/admin/category/{idCategory}/edit")
+     * @Route("/admin/category/{idCategory}/edit", name="category.edit")
      */
-    public function edit($idCategory)
+    public function edit($idCategory, Request $request)
     {
         // On récupère le manager des entities
         $entityManager = $this->getDoctrine()->getManager();
@@ -90,21 +107,38 @@ class CategoryController extends AbstractController
 
         if(!$category) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé avec l'id ".$idCategory
+                "Pas de Category trouvé avec l'id ".$idCategory
             );
         }
-        // On modifie le contenu de l'objet Category
-        $category->setName("Rap");
-        // On met à jour en base de données avec les valeurs modifiées (i.e. la requête UPDATE)
-        $entityManager->flush();
+        
+        $form = $this->createForm(CategoryType::class, $category);
+
+        //Récupère les données transmises par la requête pour les transmettre au formulaire
+        $form->handleRequest($request);
+        // Vérifie si le formulaire a été soumis et s'il est valide
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Récupère l'objet `Post` qui a été passé au formulaire
+            // L'objet `Post` a été mis à jour avec les données soumises et validées 
+            $category = $form->getData();
+
+            // On récupère le manager des entities
+            $entityManager = $this->getDoctrine()->getManager();
+
+            // On dit à Doctrine que l'on veut sauvegarder le Post
+            // (Pas encore de requête faite en base)
+            $entityManager->persist($category);
+
+            // La/les requêtes sont exécutées (i.e. la requête INSERT) 
+            $entityManager->flush();
+        }
 
         return $this->render('category/edit.html.twig', [
-            'category' => $category
+            'form' => $form->createView(),
         ]);
     }
 
     /**
-     * @Route("/admin/category/{idCategory}/remove")
+     * @Route("/admin/category/{idCategory}/remove", name="category.remove")
      */
     public function remove($idCategory)
     {
@@ -115,7 +149,7 @@ class CategoryController extends AbstractController
     
         if(!$category) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé avec l'id ".$idCategory
+                "Pas de Category trouvé avec l'id ".$idCategory
             );
         }
         // On dit au manager que l'on veux supprimer cet objet en base de données

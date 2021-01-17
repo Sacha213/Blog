@@ -1,0 +1,19 @@
+{% extends 'base.admin.html.twig' %}
+
+{% block body %}
+	{{"Liste des commentaires :"}}
+	<ul>
+		{% for comment in comments %}
+			<li>
+				<a href={{"/admin/comment/" ~ comment.id}} style={% if comment.valid=='0' %}"color:red;"{% else %}"color:green;"{% endif %}>{{comment.content}}</a>
+				<a href={{"/admin/comment/" ~ comment.id ~ "/edit"}} >
+					<button>Valider</button><a/>
+					<a href={{"/admin/comment/" ~ comment.id ~ "/remove"}} >
+						<button>Delete</button><a/>
+					</li>
+				{% else %}
+					Pas de commentaire trouvé.
+				{% endfor %}
+			</li>
+		</ul>
+		{% endblock %}

@@ -6,13 +6,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Post;
+use App\Form\PostType;
+use Symfony\Component\HttpFoundation\Request;
 
 
 class PostController extends AbstractController
 {
 
     /**
-     * @Route("/admin/post/{idPost}")
+     * @Route("/admin/post/{idPost}", name="post.show")
      */
     public function show($idPost)
     {
@@ -22,9 +24,9 @@ class PostController extends AbstractController
         // On fait appel à la méthode générique `find` qui permet de SELECT en fonction d'un Id
         $post = $postRepository->find($idPost);
 
-        if(!$post) {
+        if (!$post) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé avec l'id ".$idPost
+                "Pas de Post trouvé avec l'id " . $idPost
             );
         }
 
@@ -34,7 +36,7 @@ class PostController extends AbstractController
     }
 
     /**
-     * @Route("/admin/post")
+     * @Route("/admin/post", name="post.list")
      */
     public function list()
     {
@@ -43,92 +45,120 @@ class PostController extends AbstractController
         // On fait appel à la méthode générique `findAll` qui permet de récupérer tout les posts
         $posts = $postRepository->findAll();
 
-        if(!$posts) {
+        if (!$posts) {
             throw $this->createNotFoundException(
                 "Pas de Post trouvé"
             );
         }
 
-        return $this->render('post/list.html.twig',[
+        return $this->render('post/list.html.twig', [
             'posts' => $posts
         ]);
     }
 
     /**
-     * @Route("/admin/post/create")
+     * @Route("/admin/post/new/create", name="post.create")
      */
-    public function create()
+    public function create(Request $request)
     {
-         // On crée un nouveau objet Post
+        // On crée un nouveau objet Post
         $post = new Post();
-        $post->setTitle('Mon titre');
-        $post->setContent('Mon contenu');
-        
-        // On récupère le manager des entities
-        $entityManager = $this->getDoctrine()->getManager();
-        
-        // On dit à Doctrine que l'on veut sauvegarder le Post
-        // (Pas encore de requête faite en base)
-        $entityManager->persist($post);
-        
-        // La/les requêtes sont exécutées (i.e. la requête INSERT) 
-        $entityManager->flush();
 
-        return $this->render('post/create.html.twig',[
-            'post' => $post,
-        ]
-    );
+        $form = $this->createForm(PostType::class, $post);
+
+        //Récupère les données transmises par la requête pour les transmettre au formulaire
+        $form->handleRequest($request);
+        // Vérifie si le formulaire a été soumis et s'il est valide
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Récupère l'objet `Post` qui a été passé au formulaire
+            // L'objet `Post` a été mis à jour avec les données soumises et validées 
+            $post = $form->getData();
+
+            // On récupère le manager des entities
+            $entityManager = $this->getDoctrine()->getManager();
+
+            // On dit à Doctrine que l'on veut sauvegarder le Post
+            // (Pas encore de requête faite en base)
+            $entityManager->persist($post);
+
+            // La/les requêtes sont exécutées (i.e. la requête INSERT) 
+            $entityManager->flush();
+        }
+
+        return $this->render(
+            'post/create.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
-     * @Route("/admin/post/{idPost}/edit")
+     * @Route("/admin/post/{idPost}/edit", name="post.edit")
      */
-    public function edit($idPost)
+    public function edit($idPost, Request $request)
     {
+
         // On récupère le manager des entities
         $entityManager = $this->getDoctrine()->getManager();
+
         // On récupère le `repository` en rapport avec l'entity `Post`
         $postRepository = $entityManager->getRepository(Post::class);
         // On fait appel à la méthode générique `find` qui permet de SELECT en fonction d'un Id
         $post = $postRepository->find($idPost);
 
-        if(!$post) {
+        if (!$post) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé avec l'id ".$idPost
+                "Pas de Post trouvé avec l'id " . $idPost
             );
         }
-        // On modifie le contenu de l'objet Post
-        $post->setContent('Mon contenu mis à jour');
-        // On met à jour en base de données avec les valeurs modifiées (i.e. la requête UPDATE)
-        $entityManager->flush();
+
+        $form = $this->createForm(PostType::class, $post);
+
+
+        //Récupère les données transmises par la requête pour les transmettre au formulaire
+        $form->handleRequest($request);
+        // Vérifie si le formulaire a été soumis et s'il est valide
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Récupère l'objet `Post` qui a été passé au formulaire
+            // L'objet `Post` a été mis à jour avec les données soumises et validées 
+            $post = $form->getData();
+
+            // On dit à Doctrine que l'on veut sauvegarder le Post
+            // (Pas encore de requête faite en base)
+            $entityManager->persist($post);
+
+            // On met à jour en base de données avec les valeurs modifiées (i.e. la requête UPDATE)
+            $entityManager->flush();
+        }
 
 
         return $this->render('post/edit.html.twig', [
-            'post' => $post
+            'form' => $form->createView(),
         ]);
     }
 
     /**
-     * @Route("/admin/post/{idPost}/remove")
+     * @Route("/admin/post/{idPost}/remove", name="post.remove")
      */
     public function remove($idPost)
     {
 
         $entityManager = $this->getDoctrine()->getManager();
         $postRepository = $entityManager->getRepository(Post::class);
-    
+
         $post = $postRepository->find($idPost);
-    
-        if(!$post) {
+
+        if (!$post) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé avec l'id ".$idPost
+                "Pas de Post trouvé avec l'id " . $idPost
             );
         }
         // On dit au manager que l'on veux supprimer cet objet en base de données
         $entityManager->remove($post);
         // On met à jour en base de données en supprimant la ligne correspondante (i.e. la requête DELETE)
         $entityManager->flush();
-    
+
 
         return $this->redirectToRoute('post.list');
     }

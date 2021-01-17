@@ -11,7 +11,7 @@ class CommentController extends AbstractController
 {
 
     /**
-     * @Route("/admin/comment/{idComment}")
+     * @Route("/admin/comment/{idComment}", name="comment.show")
      */
     public function show($idComment)
     {
@@ -23,7 +23,7 @@ class CommentController extends AbstractController
 
         if(!$comment) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé avec l'id ".$idComment
+                "Pas de Comment trouvé avec l'id ".$idComment
             );
         }
 
@@ -33,7 +33,7 @@ class CommentController extends AbstractController
     }
 
     /**
-     * @Route("/admin/comment")
+     * @Route("/admin/comment", name="comment.list")
      */
     public function list()
     {
@@ -44,7 +44,7 @@ class CommentController extends AbstractController
 
         if(!$comments) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé"
+                "Pas de Comment trouvé"
             );
         }
 
@@ -54,7 +54,7 @@ class CommentController extends AbstractController
     }
 
     /**
-     * @Route("/admin/comment/create")
+     * @Route("/admin/comment/new/create", name="comment.create")
      */
     public function create()
     {
@@ -79,7 +79,7 @@ class CommentController extends AbstractController
     }
 
     /**
-     * @Route("/admin/comment/{idComment}/edit")
+     * @Route("/admin/comment/{idComment}/edit", name="comment.edit")
      */
     public function edit($idComment)
     {
@@ -92,21 +92,19 @@ class CommentController extends AbstractController
 
         if(!$comment) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé avec l'id ".$idComment
+                "Pas de Comment trouvé avec l'id ".$idComment
             );
         }
         // On modifie le contenu de l'objet Comment
-        $comment->setContent('Mon contenu mis à jour');
+        $comment->setValid('1');
         // On met à jour en base de données avec les valeurs modifiées (i.e. la requête UPDATE)
         $entityManager->flush();
 
-        return $this->render('comment/edit.html.twig', [
-            'comment' => $comment
-        ]);
+        return $this->redirectToRoute('comment.list');
     }
 
     /**
-     * @Route("/admin/comment/{idComment}/remove")
+     * @Route("/admin/comment/{idComment}/remove", name="comment.remove")
      */
     public function remove($idComment)
     {
@@ -117,7 +115,7 @@ class CommentController extends AbstractController
     
         if(!$comment) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé avec l'id ".$idComment
+                "Pas de Comment trouvé avec l'id ".$idComment
             );
         }
         // On dit au manager que l'on veux supprimer cet objet en base de données

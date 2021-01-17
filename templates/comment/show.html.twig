@@ -1,0 +1,38 @@
+{% extends 'base.admin.html.twig' %}
+
+{% block body %}
+	<ul>
+
+		<li>
+			Identifiant :
+			{{ comment.id }}
+		</li>
+
+		<li>
+			Username :
+			{{ comment.username }}
+		</li>
+
+		<li>
+			Contenu :
+			{{ comment.content }}
+		</li>
+
+		<li>
+			Valide :
+			{{ comment.valid }}
+		</li>
+
+		<li>
+			Crée le :
+			{{ comment.createdAt|date("m/d/Y")}}
+		</li>
+
+		<li>
+			Nom du post :
+			<a href={{"/admin/post/" ~ comment.getPost().id }}>{{ comment.getPost().title}}</a>
+		</li>
+	</ul>
+
+
+{% endblock %}
