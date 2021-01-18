@@ -162,4 +162,61 @@ class PostController extends AbstractController
 
         return $this->redirectToRoute('post.list');
     }
+
+    /**
+     * @Route("/", name="post.index")
+     */
+    public function index()
+    {
+
+        // On récupère le `repository` en rapport avec l'entity `Post` 
+        $postRepository = $this->getDoctrine()->getRepository(Post::class);
+        // On fait appel à la méthode générique `findAll` qui permet de récupérer tout les posts
+        $posts = $postRepository->findAll();
+
+        if (!$posts) {
+            throw $this->createNotFoundException(
+                "Pas de Post trouvé"
+            );
+        }
+
+        //On récupère la variable d'affichage de page
+        if(isset($_GET['page'])){
+            $page = $_GET['page'];
+            
+            if($page<0){
+                $page=0;
+            }
+        }
+        else{
+            $page = 0;
+        }
+
+        return $this->render('post/index.html.twig', [
+            'posts' => $posts, 'page'=> $page
+        ]);
+    }
+
+    /**
+     * @Route("/post/{idPost}", name="post.read")
+     */
+    public function read($idPost)
+    {
+
+        // On récupère le `repository` en rapport avec l'entity `Post` 
+        $postRepository = $this->getDoctrine()->getRepository(Post::class);
+        // On fait appel à la méthode générique `find` qui permet de SELECT en fonction d'un Id
+        $post = $postRepository->find($idPost);
+
+        if (!$post) {
+            throw $this->createNotFoundException(
+                "Pas de Post trouvé avec l'id " . $idPost
+            );
+        }
+
+        return $this->render('post/read.html.twig', [
+            'post' => $post
+        ]);
+    }
+
 }

@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{#On traite la page avec une variable #}
+{%set precedent = page-1%}
+{%set suivant = page+1%}
+
+
+{% block body %}
+	{{"Liste des posts :"}}
+	{{"now"|date("m/d/Y")}}
+	<ul>
+		{% for post in posts|slice(page*5, page*5+5)%}
+			{% if post.createdAt|date('Y-m-d') < "now"|date('Y-m-d') %}
+    			<li>
+				<a href={{"/post/" ~ post.id}}>{{post.title}}</a>
+				 : {{post.description}}
+				</li>
+			{% endif %}
+		{% else %}
+				Pas de post trouvé.
+		{% endfor %}
+			</li>
+		</ul>
+        <a href={{"/?page=" ~ precedent }}><button>Précédent</button><a/>
+        <a href={{"/?page=" ~ suivant }}><button>Suivant</button><a/>
+        {{"Page : " ~ page}}
+		{% endblock %}
