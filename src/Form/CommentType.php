@@ -3,11 +3,15 @@
 namespace App\Form;
 
 use App\Entity\Comment;
-use Doctrine\DBAL\Types\BooleanType;
-use phpDocumentor\Reflection\Types\Boolean;
+use App\Entity\Post;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class CommentType extends AbstractType
 {
@@ -15,10 +19,16 @@ class CommentType extends AbstractType
     {
         $builder
             ->add('username',TextType::class)
-            ->add('content',TextType::class)
-            ->add('valid',BooleanType::class)
-            ->add('createdAt',DateType::class)
-            //->add('post')
+            ->add('content',TextareaType::class)
+            ->add('createdAt',DateType::class,[
+                'disabled' => 'true',
+            ])
+            ->add('post', EntityType::class,[
+                'class' => Post::class,
+                'choice_label' => 'title',
+                'disabled' => 'true',
+            ])
+
             ->add('save', SubmitType::class)
         ;
     }

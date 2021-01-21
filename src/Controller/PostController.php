@@ -2,12 +2,16 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Post;
 use App\Form\PostType;
+use App\Form\CommentType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\String\Slugger\AsciiSlugger;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 
 class PostController extends AbstractController
@@ -64,6 +68,12 @@ class PostController extends AbstractController
         // On crée un nouveau objet Post
         $post = new Post();
 
+        //On initialise les dates 
+        $post->setUpdatedAt(new \DateTime());
+        $post->setPublishedAt(new \DateTime());
+        $post->setCreatedAt(new \DateTime());
+
+
         $form = $this->createForm(PostType::class, $post);
 
         //Récupère les données transmises par la requête pour les transmettre au formulaire
@@ -73,6 +83,11 @@ class PostController extends AbstractController
             // Récupère l'objet `Post` qui a été passé au formulaire
             // L'objet `Post` a été mis à jour avec les données soumises et validées 
             $post = $form->getData();
+
+            //Génération du slug 
+            $slugger = new AsciiSlugger();
+            $slug = $slugger->slug($post->getTitle());
+            $post->setSlug($slug);
 
             // On récupère le manager des entities
             $entityManager = $this->getDoctrine()->getManager();
@@ -123,6 +138,11 @@ class PostController extends AbstractController
             // Récupère l'objet `Post` qui a été passé au formulaire
             // L'objet `Post` a été mis à jour avec les données soumises et validées 
             $post = $form->getData();
+
+            //Génération du slug 
+            $slugger = new AsciiSlugger();
+            $slug = $slugger->slug($post->getTitle());
+            $post->setSlug($slug);
 
             // On dit à Doctrine que l'on veut sauvegarder le Post
             // (Pas encore de requête faite en base)
@@ -198,24 +218,57 @@ class PostController extends AbstractController
     }
 
     /**
-     * @Route("/post/{idPost}", name="post.read")
+     * @Route("/post/{slug}", name="post.read")
      */
-    public function read($idPost)
+    public function read($slug, Request $request)
     {
 
         // On récupère le `repository` en rapport avec l'entity `Post` 
         $postRepository = $this->getDoctrine()->getRepository(Post::class);
         // On fait appel à la méthode générique `find` qui permet de SELECT en fonction d'un Id
-        $post = $postRepository->find($idPost);
+        $post = $postRepository->findOneBy(['slug' => $slug]);
 
         if (!$post) {
             throw $this->createNotFoundException(
-                "Pas de Post trouvé avec l'id " . $idPost
+                "Pas de Post trouvé avec le slug " . $slug
             );
         }
 
+        //Form
+
+        $comment = new Comment();
+        //On initialise les champs date, valide et post
+        $comment->setPost($post);
+        $comment->setCreatedAt(new \DateTime());
+        $comment->setValid(false);
+
+        $form = $this->createForm(CommentType::class, $comment);
+        
+
+        // Récupère les données transmises par la requête pour les transmettre au formulaire
+        $form->handleRequest($request);
+        // Vérifie si le formulaire a été soumis et s'il est valide
+        if ($form->isSubmitted() && $form->isValid()) {
+        // Récupère l'objet `Post` qui a été passé au formulaire
+        // L'objet `Post` a été mis à jour avec les données soumises et validées 
+            $comment = $form->getData();
+
+            // On récupère le manager des entities
+            $entityManager = $this->getDoctrine()->getManager();
+
+            // On dit à Doctrine que l'on veut sauvegarder le Post
+            // (Pas encore de requête faite en base)
+            $entityManager->persist($comment);
+
+            // On met à jour en base de données avec les valeurs modifiées (i.e. la requête UPDATE)
+            $entityManager->flush();
+        }
+
+
+        //$this->generateUrl('post.read', ['idPost' => 'my-blog-post'], UrlGeneratorInterface::ABSOLUTE_URL);
+
         return $this->render('post/read.html.twig', [
-            'post' => $post
+            'post' => $post, 'form' => $form->createView(),
         ]);
     }
 

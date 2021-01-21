@@ -11,7 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
 class PostType extends AbstractType
 {
@@ -21,11 +21,16 @@ class PostType extends AbstractType
             ->add('title',TextType::class)
             ->add('description',TextareaType::class)
             ->add('content',TextareaType::class)
-            ->add('slug',TextType::class)
             ->add('createdAt',DateType::class)
-            //->add('updatedAt',DateType::class)
-            //->add('publishedAt',DateType::class)
-            //->add('categories',ChoiceType::class)
+            ->add('updatedAt',DateType::class)
+            ->add('publishedAt',DateType::class)
+            ->add('categories', EntityType::class, [
+                    'class' => Category::class,
+                    'multiple' => true,
+                    'expanded' => true,
+                    'by_reference'=> false,
+                    'choice_label' => 'name',
+                ])   
             ->add('save', SubmitType::class)
         ;
     }

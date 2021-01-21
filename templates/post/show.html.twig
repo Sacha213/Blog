@@ -38,15 +38,18 @@
 			Publié le :
 			{{post.publishedAt|date("d/m/Y")}}
 		</li>
-		{#
-					<li>
-						{{ post.comments }}
-					</li>
-								
-					<li>
-						{{ post.categories }}
-					</li>
-				#}
+
+		<li>
+			Mis à jours le :
+			{{post.updatedAt|date("d/m/Y")}}
+		</li>
+		<li> Catégories : </li>
+			{% for category in post.categories %}					
+					{{ category.name }}
+					<br>
+		{% else %}
+				Pas de catégorie pour ce post trouvé.
+		{% endfor %}
 
 	</ul>
 

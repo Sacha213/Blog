@@ -7,12 +7,11 @@
 
 {% block body %}
 	{{"Liste des posts :"}}
-	{{"now"|date("m/d/Y")}}
 	<ul>
-		{% for post in posts|slice(page*5, page*5+5)%}
-			{% if post.createdAt|date('Y-m-d') < "now"|date('Y-m-d') %}
+		{% for post in posts|slice(page*5, (page*5)+5)%}
+			{% if post.createdAt|date('Y-m-d') <= "now"|date('Y-m-d') %}
     			<li>
-				<a href={{"/post/" ~ post.id}}>{{post.title}}</a>
+				<a href={{"/post/" ~ post.slug}}>{{post.title}}</a>
 				 : {{post.description}}
 				</li>
 			{% endif %}

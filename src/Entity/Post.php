@@ -21,7 +21,7 @@ class Post
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank() 
      */
     private $title;
@@ -39,8 +39,7 @@ class Post
     private $content;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank() 
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private $slug;
 
